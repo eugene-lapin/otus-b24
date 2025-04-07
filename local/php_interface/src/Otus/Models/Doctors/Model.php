@@ -105,20 +105,17 @@ class Model
      */
     public function update(array $data)
     {
-        DoctorsTable::update($data['ID'], [
-            'ELEMENT.NAME' => $data['SLUG'],
-            'LASTNAME' => $data['LASTNAME'],
-            'FIRSTNAME' => $data['FIRSTNAME'],
-            'PATRONYMIC' => $data['PATRONYMIC'],
-        ]);
-
         if (Loader::includeModule('iblock')) {
-            $el = new \CIBlockElement();
-            $el->SetPropertyValuesEx(
-                $data['ID'],
-                DoctorsTable::IBLOCK_ID,
-                ['PROCEDURES' => $data['PROCS']]
-            );
+            $iblockElement = new \CIBlockElement();
+            $iblockElement->Update($data['ID'], [
+                'NAME' => $data['SLUG'],
+                'PROPERTY_VALUES' => [
+                    'LASTNAME' => $data['LASTNAME'],
+                    'FIRSTNAME' => $data['FIRSTNAME'],
+                    'PATRONYMIC' => $data['PATRONYMIC'],
+                    'PROCEDURES' => $data['PROCS'],
+                ]
+            ]);
         }
     }
 
