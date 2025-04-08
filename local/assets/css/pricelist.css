@@ -1,0 +1,11 @@
+table.pricelist {
+    border-collapse: collapse;
+    border: solid 1px;
+    margin: 0;
+    padding: 0;
+}
+table.pricelist th,
+table.pricelist td {
+    border: solid 1px;
+    padding: 5px 10px;
+}
