@@ -17,6 +17,8 @@ $q->setSelect([
     'PROCEDURE_NAME' => 'PROCEDURE.ELEMENT.NAME',
 ]);
 $q->setOrder(['PROCEDURE_NAME' => 'ASC']);
+$q->setCacheTtl(600);
+$q->cacheJoins(true);
 $res = $q->exec();
 $pricelist = $res->fetchAll();
 
