@@ -97,7 +97,7 @@ $APPLICATION->IncludeComponent(
 <script>
     BX.ready(function(){
         filterInstance = BX.Main.filterManager.getById('<?= $filterId ?>');
-        filterInstance.getApi().setFields({"CURRENCY": "<?= $selectedCurrency ?>"});
+        filterInstance.getApi().setFields({"CURRENCY": "<?= CUtil::JSEscape($selectedCurrency) ?>"});
     });
 </script>
 
