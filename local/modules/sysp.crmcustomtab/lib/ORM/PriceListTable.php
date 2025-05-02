@@ -66,7 +66,7 @@ class PriceListTable extends DataManager
                 ]
             ),
             new IntegerField(
-                'entity_id',
+                'ENTITY_ID',
                 [
                     'title' => Loc::getMessage('LIST_ENTITY_ENTITY_ID_FIELD'),
                 ]

@@ -144,7 +144,7 @@ abstract class AbstractIblockPropertyValuesTable extends DataManager
      *
      * @return bool
      */
-    public static function add(array $data): bool
+    public static function add(array $data)
     {
         $iblockId = static::getIblockId();
         static::$iblockElement ?? static::$iblockElement = new CIBlockElement();
