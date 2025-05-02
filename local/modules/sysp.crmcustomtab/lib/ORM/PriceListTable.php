@@ -1,6 +1,6 @@
 <?php
 
-namespace Otus\Models\Doctors;
+namespace Sysp\CrmCustomTab\ORM;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
