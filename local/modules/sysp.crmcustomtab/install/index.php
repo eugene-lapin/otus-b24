@@ -161,12 +161,10 @@ class sysp_crmcustomtab extends CModule
             }
             
             $d = new Directory($namespace_directory);
-            $children = $d->getChildren();
-            if (empty($children)) {
-                try {
+            if ($d->isExists()) {
+                $children = $d->getChildren();
+                if (empty($children)) {
                     $d->delete();
-                } catch (\Exception $e) {
-                    throw new SystemException($e->getMessage());
                 }
             }
         } else {
@@ -252,6 +250,13 @@ class sysp_crmcustomtab extends CModule
         ]);
         PriceListTable::add([
             'DOCTOR_ID' => $doctor2,
+            'PROCEDURE_ID' => $proc1,
+            'COST' => mt_rand(1, 20) * 100,
+            'RECOMMENDATIONS' => Loc::getMessage('DEMO_RECOMMENDATIONS_PROC1'),
+            'ENTITY_ID' => $entityId,
+        ]);
+        PriceListTable::add([
+            'DOCTOR_ID' => $doctor2,
             'PROCEDURE_ID' => $proc2,
             'COST' => mt_rand(1, 20) * 100,
             'RECOMMENDATIONS' => Loc::getMessage('DEMO_RECOMMENDATIONS_PROC2'),
@@ -267,6 +272,7 @@ class sysp_crmcustomtab extends CModule
 
         //store options for unInstallDb
         $arDemoData = [
+            'ENTITY_ID' => $entityId,
             'PROCEDURES' => [$proc1, $proc2, $proc3],
             'DOCTORS' => [$doctor1, $doctor2],
         ];
@@ -278,8 +284,10 @@ class sysp_crmcustomtab extends CModule
         $connection = Application::getConnection();
         $connection->queryExecute("DROP TABLE IF EXISTS `otus_price_list`");
 
+        $entityType = Option::get($this->MODULE_ID, 'entity_type');
         $arDemoData = unserialize(Option::get($this->MODULE_ID, 'demo_data'));
-        \Bitrix\Main\Diag\Debug::writeToFile($arDemoData);
+
+        $this->deleteCrmEntity($entityType, $arDemoData['ENTITY_ID']);
         foreach ($arDemoData['PROCEDURES'] as $elementId) {
             $element = new CIBlockElement();
             $element->Delete($elementId);
@@ -329,7 +337,7 @@ class sysp_crmcustomtab extends CModule
         return Loader::includeModule('crm') && Loader::includeModule('iblock');
     }
 
-    private function createCrmEntity(string $entityType, array $arFields): ?int
+    public function createCrmEntity(string $entityType, array $arFields): ?int
     {
         if (!$entityType) {
             return null;
@@ -357,13 +365,46 @@ class sysp_crmcustomtab extends CModule
 
         $item = $factory->createItem();
         $item->setFromCompatibleData($arFields);
-        $dealAddOperation = $factory->getAddOperation($item);
-        $result = $dealAddOperation->launch();
+        $addOperation = $factory->getAddOperation($item);
+        $result = $addOperation->launch();
 
         if ($result->isSuccess()) {
             return $item->getId();
         } else {
             return null;
         }
+    }
+
+    public function deleteCrmEntity(string $entityType, int $entityId): void
+    {
+        if (!$entityType || !$entityId) {
+            return;
+        }
+        Loader::includeModule('crm');
+
+        $entityMap = [
+            'LEAD' => \CCrmOwnerType::Lead,
+            'DEAL' => \CCrmOwnerType::Deal,
+            'CONTACT' => \CCrmOwnerType::Contact,
+            'COMPANY' => \CCrmOwnerType::Company,
+        ];
+
+        $entityTypeId = $entityMap[$entityType] ?? null;
+        if (!$entityTypeId) {
+            echo "Unknown entity type: $entityType";
+            return;
+        }
+
+        $factory = Container::getInstance()->getFactory($entityTypeId);
+        if (!$factory) {
+            echo "Factory not found for CRM Type: $entityType";
+            return;
+        }
+        $item = $factory->getItem($entityId);
+        if (!$item) {
+            return;
+        }
+        $deleteOperation = $factory->getDeleteOperation($item);
+        $deleteOperation->launch();
     }
 }
