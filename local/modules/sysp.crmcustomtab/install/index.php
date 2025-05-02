@@ -116,10 +116,10 @@ class sysp_crmcustomtab extends CModule
 
     public function DoUninstall()
     {
-        Option::delete($this->MODULE_ID);
         $this->unInstallFiles();
         $this->unInstallDb();
         $this->unInstallEvents();
+        Option::delete($this->MODULE_ID);
         ModuleManager::unRegisterModule($this->MODULE_ID);
     }
 
@@ -224,13 +224,13 @@ class sysp_crmcustomtab extends CModule
         $proc3 = ProceduresTable::add(['NAME' => Loc::getMessage('DEMO_PROC3_NAME')]);
 
         $doctor1 = DoctorsTable::add([
-            'NAME' => 'unnamed_' . rand(0, 1000) . '_' . time(),
+            'NAME' => 'slug_' . rand(0, 1000) . '_' . time(),
             'LASTNAME' => Loc::getMessage('DEMO_DOCTOR1_LASTNAME'),
             'FIRSTNAME' => Loc::getMessage('DEMO_DOCTOR1_FIRSTNAME'),
             'PATRONYMIC' => Loc::getMessage('DEMO_DOCTOR1_PATRONYMIC'),
         ]);
         $doctor2 = DoctorsTable::add([
-            'NAME' => 'unnamed_' . rand(0, 1000) . '_' . time(),
+            'NAME' => 'slug_' . rand(0, 1000) . '_' . time(),
             'LASTNAME' => Loc::getMessage('DEMO_DOCTOR2_LASTNAME'),
             'FIRSTNAME' => Loc::getMessage('DEMO_DOCTOR2_FIRSTNAME'),
             'PATRONYMIC' => Loc::getMessage('DEMO_DOCTOR2_PATRONYMIC'),
@@ -264,12 +264,30 @@ class sysp_crmcustomtab extends CModule
             'RECOMMENDATIONS' => Loc::getMessage('DEMO_RECOMMENDATIONS_PROC3'),
             'ENTITY_ID' => $entityId,
         ]);
+
+        //store options for unInstallDb
+        $arDemoData = [
+            'PROCEDURES' => [$proc1, $proc2, $proc3],
+            'DOCTORS' => [$doctor1, $doctor2],
+        ];
+        Option::set($this->MODULE_ID, 'demo_data', serialize($arDemoData));
     }
 
     public function unInstallDb(): void
     {
         $connection = Application::getConnection();
         $connection->queryExecute("DROP TABLE IF EXISTS `otus_price_list`");
+
+        $arDemoData = unserialize(Option::get($this->MODULE_ID, 'demo_data'));
+        \Bitrix\Main\Diag\Debug::writeToFile($arDemoData);
+        foreach ($arDemoData['PROCEDURES'] as $elementId) {
+            $element = new CIBlockElement();
+            $element->Delete($elementId);
+        }
+        foreach ($arDemoData['DOCTORS'] as $elementId) {
+            $element = new CIBlockElement();
+            $element->Delete($elementId);
+        }
     }
     public function installEvents(): void
     {
