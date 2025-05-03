@@ -190,8 +190,6 @@ abstract class AbstractIblockPropertyValuesTable extends DataManager
             static::$properties[$iblockId][$row['CODE']] = $row;
         }
 
-        \Bitrix\Main\Diag\Debug::writeToFile(static::$properties[$iblockId]);
-        
         return static::$properties[$iblockId] ?? [];
     }
 
