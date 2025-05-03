@@ -287,14 +287,16 @@ class sysp_crmcustomtab extends CModule
         $entityType = Option::get($this->MODULE_ID, 'entity_type');
         $arDemoData = unserialize(Option::get($this->MODULE_ID, 'demo_data'));
 
-        $this->deleteCrmEntity($entityType, $arDemoData['ENTITY_ID']);
-        foreach ($arDemoData['PROCEDURES'] as $elementId) {
-            $element = new CIBlockElement();
-            $element->Delete($elementId);
-        }
-        foreach ($arDemoData['DOCTORS'] as $elementId) {
-            $element = new CIBlockElement();
-            $element->Delete($elementId);
+        if ($arDemoData) {
+            $this->deleteCrmEntity($entityType, $arDemoData['ENTITY_ID']);
+            foreach ($arDemoData['PROCEDURES'] as $elementId) {
+                $element = new CIBlockElement();
+                $element->Delete($elementId);
+            }
+            foreach ($arDemoData['DOCTORS'] as $elementId) {
+                $element = new CIBlockElement();
+                $element->Delete($elementId);
+            }
         }
     }
     public function installEvents(): void
