@@ -20,7 +20,6 @@ $availableEntities = ['LEAD', 'DEAL', 'CONTACT', 'COMPANY'];
 Loader::includeModule($moduleId);
 Loader::includeModule('crm');
 
-
 if ($request->isPost() && check_bitrix_sessid()) {
     $entityType = $request->getPost('ENTITY_TYPE');
     $doctorsIblockId = intval($request->getPost('DOCTORS_IBLOCK_ID')) ?? 0;
@@ -120,4 +119,5 @@ $tabControl->Begin();
     <input type='submit' name='apply' value='<?= Loc::getMessage('MAIN_SAVE') ?>' class='adm-btn-save'/>
     <?= bitrix_sessid_post() ?>
 </form>
+
 <?php $tabControl->End();
