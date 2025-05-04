@@ -52,8 +52,9 @@ class DoctorsComponent extends CBitrixComponent
     {
         $filterOption = new FilterOptions($this->id);
         $filterData = $filterOption->getFilter([]);
-
-        $filter = [];
+        $filter = [
+            '=ENTITY_ID' => $this->arParams['ENTITY_ID']
+        ];
 
         if (!empty($filterData['PROCEDURE_NAME'])) {
             $filter['%PROCEDURE.ELEMENT.NAME'] = $filterData['PROCEDURE_NAME'];

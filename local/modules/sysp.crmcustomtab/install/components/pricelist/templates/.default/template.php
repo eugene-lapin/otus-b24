@@ -16,8 +16,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 use Bitrix\Main\Grid\Options as GridOptions;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
 use Bitrix\Main\Localization\Loc;
-
-//echo time();
+use Bitrix\Main\Web\Json;
 
 $APPLICATION->IncludeComponent('bitrix:main.ui.filter', '', [
     'FILTER_ID' => $arResult['GRID']['GRID_ID'],
@@ -67,4 +66,23 @@ $APPLICATION->IncludeComponent(
     ],
     $component
 );
+?>
 
+<?php if (!empty($arParams['AJAX_LOADER'])): ?>
+    <script>
+        BX.addCustomEvent('Grid::beforeRequest', function (gridData, argse) {
+            if (argse.gridId !== '<?=$arResult['GRID']['GRID_ID']?>') {
+                return;
+            }
+
+            if (argse.url === '') {
+                argse.url = "<?=$component->getPath()?>/lazyload.ajax.php?site=<?=\SITE_ID?>&internal=true&grid_id=<?=$arResult['GRID']['GRID_ID']?>&grid_action=filter&"
+            }
+
+            argse.method = 'POST'
+            argse.data = <?= Json::encode($arParams['AJAX_LOADER']['data']) ?>;
+        });
+    </script>
+<?php endif; ?>
+
+<div class="new-component-container"></div>
