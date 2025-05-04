@@ -1,6 +1,6 @@
 <?php
 
-namespace Otus\Models\Doctors;
+namespace Sysp\CrmCustomTab\ORM;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
@@ -66,7 +66,7 @@ class PriceListTable extends DataManager
                 ]
             ),
             new IntegerField(
-                'entity_id',
+                'ENTITY_ID',
                 [
                     'title' => Loc::getMessage('LIST_ENTITY_ENTITY_ID_FIELD'),
                 ]
