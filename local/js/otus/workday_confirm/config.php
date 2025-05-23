@@ -6,5 +6,4 @@ return [
     'js' => [
         'src/main.js',
     ],
-    'lang' => 'lang/' . LANGUAGE_ID . '/main.php',
 ];
