@@ -1,5 +1,4 @@
 BX.namespace('Otus.Workday_Confirm');
-
 BX.addCustomEvent('onTimeManWindowOpen', function(e) {
 	const wrapper = BXTIMEMAN.WND.LAYOUT;
 	if (wrapper.hasAttribute('data-has-custom-handler')) {
