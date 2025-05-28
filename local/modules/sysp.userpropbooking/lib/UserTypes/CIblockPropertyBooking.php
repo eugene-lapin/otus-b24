@@ -6,6 +6,8 @@ use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
+use Otus\Models\Doctors\DoctorsTable;
+use Otus\Models\Doctors\ProceduresTable;
 
 class CIblockPropertyBooking
 {
@@ -15,8 +17,6 @@ class CIblockPropertyBooking
      */
     public static function GetUserTypeDescription(): array
     {
-        echo "GetUserTypeDescription";
-
         return [
             'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_STRING,
             'USER_TYPE' => 'otus_booking',
@@ -31,17 +31,34 @@ class CIblockPropertyBooking
 
     public static function GetPublicViewHTML($arProperty, $value, $arHtmlControl)
     {
-//        echo '<pre>';
-//        echo "arProperty:";
-//        var_dump($arProperty);
-//        echo "--------------------\n\n";
-//        echo "value:";
-//        var_dump($value);
-//        echo "--------------------\n\n";
-//        echo "arHtmlControl:";
-//        var_dump($arHtmlControl);
-//        echo "--------------------\n\n\n\n";
-        return $arProperty["ELEMENT_ID"];
+        if (!$arProperty["ELEMENT_ID"]) {
+            return '';
+        }
+
+        $arDoctorData = DoctorsTable::getList([
+            'select' => [
+                'PROCS_IDS' => 'PROCEDURES',
+                'PROCS_NAMES' => 'PROCEDURES_ELEMENT_NAME',
+            ],
+            'filter' => [
+                'ELEMENT.ACTIVE' => 'Y',
+                '=IBLOCK_ELEMENT_ID' => $arProperty["ELEMENT_ID"],
+            ],
+        ])->fetch();
+
+        $arProcedures = array_combine($arDoctorData['PROCS_IDS'], $arDoctorData['PROCS_NAMES']);
+
+        $resultHTML = '';
+        foreach ($arProcedures as $procedureId => $procedureName) {
+            $resultHTML .= sprintf(
+                '<a href="javascript:;" data-type="userpropbooking" data-doctor-id="%d" data-proc-id="%d">%s</a><br/>',
+                $arProperty["ELEMENT_ID"],
+                $procedureId,
+                htmlspecialchars($procedureName)
+            );
+        }
+
+        return $resultHTML;
     }
     public static function GetPublicEditHTML($arProperty, $value, $arHtmlControl)
     {

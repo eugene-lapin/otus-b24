@@ -21,3 +21,9 @@ use \Bitrix\Main\Localization\Loc;
         <?php endforeach; ?>
     </ul>
 <?php endif; ?>
+
+<?php if (isset($doctor['BOOKING']) && $doctor['BOOKING'] <> ''): ?>
+    <hr/>
+    <h3><?= Loc::getMessage('BOOKING') ?></h3>
+    <?= $doctor['BOOKING'] ?>
+<?php endif; ?>

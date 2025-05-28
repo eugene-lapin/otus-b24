@@ -43,6 +43,13 @@ class sysp_userpropbooking extends CModule
 
         ModuleManager::registerModule($this->MODULE_ID);
 
+        CopyDirFiles(
+            $_SERVER["DOCUMENT_ROOT"]."/local/modules/sysp.userpropbooking/install/js",
+            $_SERVER["DOCUMENT_ROOT"]."/local/js",
+            true,
+            true
+        );
+
         EventManager::getInstance()->registerEventHandler(
             'iblock',
             'OnIBlockPropertyBuildList',
@@ -54,6 +61,8 @@ class sysp_userpropbooking extends CModule
 
     public function DoUninstall()
     {
+        \Bitrix\Main\IO\Directory::deleteDirectory($_SERVER["DOCUMENT_ROOT"]."/local/js/sysp/userpropbooking");
+
 		EventManager::getInstance()->unRegisterEventHandler(
            'iblock',
             'OnIBlockPropertyBuildList',
