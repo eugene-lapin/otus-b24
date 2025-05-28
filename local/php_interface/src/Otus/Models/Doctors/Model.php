@@ -7,6 +7,8 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
+use Bitrix\Iblock\PropertyTable;
+use Sysp\UserPropBooking\UserTypes\CIblockPropertyBooking;
 
 class Model
 {
@@ -62,21 +64,48 @@ class Model
      */
     public function getDoctor(string $code): ?array
     {
-        return DoctorsTable::getList([
-            'select' => [
-                'IBLOCK_ELEMENT_ID',
-                'LASTNAME',
-                'FIRSTNAME',
-                'PATRONYMIC',
-                'SLUG' => 'ELEMENT.NAME',
-                'PROCS_IDS' => 'PROCEDURES',
-                'PROCS' => 'PROCEDURES_ELEMENT_NAME',
-            ],
+        $arSelect = [
+            'IBLOCK_ELEMENT_ID',
+            'LASTNAME',
+            'FIRSTNAME',
+            'PATRONYMIC',
+            'SLUG' => 'ELEMENT.NAME',
+            'PROCS_IDS' => 'PROCEDURES',
+            'PROCS' => 'PROCEDURES_ELEMENT_NAME',
+        ];
+
+        // если есть поле онлайн-записи и модуль установлен, то добираем поле онлайн-записи
+        $isBooking = false;
+
+        $arPropertyBooking = PropertyTable::getList([
+            'filter' => ['IBLOCK_ID' => DoctorsTable::IBLOCK_ID, 'CODE' => 'BOOKING'],
+        ])->fetch();
+
+        if ($arPropertyBooking && Loader::includeModule('sysp.userpropbooking')) {
+            $isBooking = true;
+            $arSelect[] = 'BOOKING';
+        }
+
+        // читаем данные
+        $doctor = DoctorsTable::getList([
+            'select' => $arSelect,
             'filter' => [
                 'ELEMENT.ACTIVE' => 'Y',
                 '=SLUG' => $code,
             ],
         ])->fetch();
+
+        if ($isBooking) {
+            $arPropertyBooking['ELEMENT_ID'] = $doctor['IBLOCK_ELEMENT_ID'];
+
+            $doctor['BOOKING'] = CIblockPropertyBooking::GetPublicViewHTML(
+                $arPropertyBooking,
+                ['VALUE' => $doctor['BOOKING']],
+                null
+            );
+        }
+
+        return $doctor;
     }
 
     /**
