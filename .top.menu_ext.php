@@ -188,6 +188,18 @@ if ($GLOBALS["USER"]->IsAuthorized() && Loader::includeModule("socialnetwork"))
 				""
 			);
 		}
+		if ($diskEnabled === "Y" && \Bitrix\Main\Config\Option::get('disk', 'boards_enabled', 'N') === 'Y')
+		{
+			$arMenuB24[] = array(
+				GetMessage("TOP_MENU_DISK_BOARDS"),
+				SITE_DIR."/company/personal/user/".$userId."/disk/boards/",
+				[],
+				array(
+					"menu_item_id" => "menu_boards",
+				),
+				""
+			);
+		}
 	}
 }
 
@@ -229,7 +241,7 @@ else
 	];
 }
 
-if (Loader::includeModule('booking') && \Bitrix\Booking\BookingFeature::isOn())
+if (Loader::includeModule('booking') && \Bitrix\Booking\Service\BookingFeature::isOn())
 {
 	$counterId = 'booking_total';
 
@@ -358,7 +370,7 @@ if (
 {
 	$arMenuB24[] = [
 		Loc::getMessage('TOP_MENU_IM_MESSENGER_COLLAB'),
-		'/online/?IM_COLLAB=0',
+		'/online/?IM_COLLAB',
 		[],
 		[
 			'menu_item_id' => 'menu_im_collab',
