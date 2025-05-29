@@ -3,6 +3,7 @@
         "symfony/var-dumper": "^6.4"
     },
     "require": {
-        "phpoffice/phpspreadsheet": "^4.1"
+        "phpoffice/phpspreadsheet": "^4.1",
+        "hflabs/dadata": "^24.4"
     }
 }
