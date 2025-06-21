@@ -1,7 +1,0 @@
-/bitrix/
-/upload/
-/vendor/
-.idea/
-*.log
-*.zip
-*.sql
