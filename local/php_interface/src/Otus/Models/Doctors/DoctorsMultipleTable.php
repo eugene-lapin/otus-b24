@@ -9,7 +9,7 @@ use Bitrix\Main\SystemException;
 
 class DoctorsMultipleTable extends DataManager
 {
-    const IBLOCK_ID = 17;
+    const IBLOCK_ID = 16;
 
     /**
      * @return string
