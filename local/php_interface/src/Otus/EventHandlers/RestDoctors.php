@@ -12,6 +12,9 @@ class RestDoctors extends \IRestService
 {
     const LIST_LIMIT = 5;
 
+    /**
+     * @return array[]
+     */
     public static function OnRestServiceBuildDescriptionHandler()
     {
         Loc::getMessage('REST_SCOPE_SYSP.DOCTORS');
@@ -26,6 +29,13 @@ class RestDoctors extends \IRestService
         ];
     }
 
+    /**
+     * @param $arParams
+     * @param $navStart
+     * @param \CRestServer $server
+     * @return string|null
+     * @throws RestException
+     */
     public static function add($arParams, $navStart, \CRestServer $server)
     {
         try {
@@ -39,6 +49,13 @@ class RestDoctors extends \IRestService
         }
     }
 
+    /**
+     * @param $arParams
+     * @param $navStart
+     * @param \CRestServer $server
+     * @return array|null
+     * @throws RestException
+     */
     public static function getList($arParams, $navStart, \CRestServer $server)
     {
         try {
@@ -51,6 +68,13 @@ class RestDoctors extends \IRestService
         }
     }
 
+    /**
+     * @param $arParams
+     * @param $navStart
+     * @param \CRestServer $server
+     * @return array|false|null
+     * @throws RestException
+     */
     public static function get($arParams, $navStart, \CRestServer $server)
     {
         try {
@@ -62,6 +86,13 @@ class RestDoctors extends \IRestService
         }
     }
 
+    /**
+     * @param $arParams
+     * @param $navStart
+     * @param \CRestServer $server
+     * @return mixed|null
+     * @throws RestException
+     */
     public static function update($arParams, $navStart, \CRestServer $server)
     {
         try {
@@ -82,6 +113,13 @@ class RestDoctors extends \IRestService
         }
     }
 
+    /**
+     * @param $arParams
+     * @param $navStart
+     * @param \CRestServer $server
+     * @return mixed
+     * @throws RestException
+     */
     public static function delete($arParams, $navStart, \CRestServer $server)
     {
         try {

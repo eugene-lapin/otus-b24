@@ -33,6 +33,13 @@ class Model
         ])->fetchAll();
     }
 
+    /**
+     * @param array $arParams
+     * @return array|null
+     * @throws ArgumentException
+     * @throws ObjectPropertyException
+     * @throws SystemException
+     */
     public function getList(array $arParams): ?array
     {
         $result = DoctorsTable::getList($arParams)->fetchAll();
@@ -123,6 +130,14 @@ class Model
         return $doctor ?: null;
     }
 
+    /**
+     * @param int $id
+     * @return array|null
+     * @throws ArgumentException
+     * @throws LoaderException
+     * @throws ObjectPropertyException
+     * @throws SystemException
+     */
     public function getDoctorById(int $id): ?array
     {
         $arSelect = [
@@ -230,6 +245,11 @@ class Model
         return $result;
     }
 
+    /**
+     * @param int $id
+     * @return mixed
+     * @throws LoaderException
+     */
     public function delete(int $id): mixed
     {
         if (!Loader::includeModule('iblock')) {
