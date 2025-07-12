@@ -33,6 +33,21 @@ class Model
         ])->fetchAll();
     }
 
+    public function getList(array $arParams): ?array
+    {
+        $result = DoctorsTable::getList($arParams)->fetchAll();
+
+        $total = DoctorsTable::getCount($arParams['filter'] ?? []);
+        $result['total'] = $total;
+
+        if ($arParams['offset'] + $arParams['limit'] < $total)
+        {
+            $result['next'] = $arParams['offset'] + $arParams['limit'];
+        }
+
+        return $result;
+    }
+
     /**
      * @return array|null
      * @throws ArgumentException
@@ -105,16 +120,66 @@ class Model
             );
         }
 
-        return $doctor;
+        return $doctor ?: null;
+    }
+
+    public function getDoctorById(int $id): ?array
+    {
+        $arSelect = [
+            'IBLOCK_ELEMENT_ID',
+            'LASTNAME',
+            'FIRSTNAME',
+            'PATRONYMIC',
+            'SLUG' => 'ELEMENT.NAME',
+            'PROCS_IDS' => 'PROCEDURES',
+            'PROCS' => 'PROCEDURES_ELEMENT_NAME',
+        ];
+
+        // если есть поле онлайн-записи и модуль установлен, то добираем поле онлайн-записи
+        $isBooking = false;
+
+        $arPropertyBooking = PropertyTable::getList([
+            'filter' => ['IBLOCK_ID' => DoctorsTable::IBLOCK_ID, 'CODE' => 'BOOKING'],
+        ])->fetch();
+
+        if ($arPropertyBooking && Loader::includeModule('sysp.userpropbooking')) {
+            $isBooking = true;
+            $arSelect[] = 'BOOKING';
+        }
+
+        // читаем данные
+        $doctor = DoctorsTable::getList([
+            'select' => $arSelect,
+            'filter' => [
+                '=IBLOCK_ELEMENT_ID' => $id,
+            ],
+        ])->fetch();
+
+        if ($isBooking) {
+            $arPropertyBooking['ELEMENT_ID'] = $doctor['IBLOCK_ELEMENT_ID'];
+
+            $doctor['BOOKING'] = CIblockPropertyBooking::GetPublicViewHTML(
+                $arPropertyBooking,
+                ['VALUE' => $doctor['BOOKING']],
+                null
+            );
+        }
+
+        return $doctor ?: null;
     }
 
     /**
      * @param array $data
      * @return string|null
      */
-    public function add(array $data)
+    public function add(array $data): ?string
     {
-        $slug = $this->translit_sef($data['LASTNAME']) ?? 'unnamed' . time();
+        $data['LASTNAME'] = htmlspecialchars($data['LASTNAME'] ?? '');
+        $data['FIRSTNAME'] = htmlspecialchars($data['FIRSTNAME'] ?? '');
+        $data['PATRONYMIC'] = htmlspecialchars($data['PATRONYMIC'] ?? '');
+        $data['PROCS'] = $data['PROCS'] ?? [];
+
+        $slug = ($this->translit_sef($data['LASTNAME']) ?? 'unnamed') . time();
 
         $result = DoctorsTable::add([
             'NAME' => $slug,
@@ -132,20 +197,46 @@ class Model
      * @return void
      * @throws LoaderException
      */
-    public function update(array $data)
+    public function update(array $data): mixed
     {
-        if (Loader::includeModule('iblock')) {
-            $iblockElement = new \CIBlockElement();
-            $iblockElement->Update($data['ID'], [
-                'NAME' => $data['SLUG'],
-                'PROPERTY_VALUES' => [
-                    'LASTNAME' => $data['LASTNAME'],
-                    'FIRSTNAME' => $data['FIRSTNAME'],
-                    'PATRONYMIC' => $data['PATRONYMIC'],
-                    'PROCEDURES' => $data['PROCS'],
-                ]
-            ]);
+        if (!Loader::includeModule('iblock')) {
+            throw new \Exception('IBLOCK_MODULE_NOT_INSTALLED');
         }
+
+        if (isset($data['SLUG'])) {
+            $data['SLUG'] = htmlspecialchars($data['SLUG']);
+        }
+        if (isset($data['LASTNAME'])) {
+            $data['LASTNAME'] = htmlspecialchars($data['LASTNAME']);
+        }
+        if (isset($data['FIRSTNAME'])) {
+            $data['FIRSTNAME'] = htmlspecialchars($data['FIRSTNAME']);
+        }
+        if (isset($data['PATRONYMIC'])) {
+            $data['PATRONYMIC'] = htmlspecialchars($data['PATRONYMIC']);
+        }
+
+        $iblockElement = new \CIBlockElement();
+        $result = $iblockElement->Update($data['ID'], [
+            'NAME' => $data['SLUG'],
+            'PROPERTY_VALUES' => [
+                'LASTNAME' => $data['LASTNAME'],
+                'FIRSTNAME' => $data['FIRSTNAME'],
+                'PATRONYMIC' => $data['PATRONYMIC'],
+                'PROCEDURES' => $data['PROCS'],
+            ]
+        ]);
+
+        return $result;
+    }
+
+    public function delete(int $id): mixed
+    {
+        if (!Loader::includeModule('iblock')) {
+            throw new \Exception('IBLOCK_MODULE_NOT_INSTALLED');
+        }
+
+        return \CIBlockElement::Delete($id);
     }
 
     /**
