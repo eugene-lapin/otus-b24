@@ -86,7 +86,7 @@ abstract class AbstractIblockPropertyValuesTable extends DataManager
                         ['fetch_data_modification' => [static::class, 'getMultipleFieldValueModifier']]
                     );
 
-                    if ($property['USER_TYPE'] === 'EList') {
+                    if ($property['USER_TYPE'] === 'EList' ||  $property['PROPERTY_TYPE'] === 'E') {
                         $map[$property['CODE'].'_ELEMENT_NAME'] = new ExpressionField(
                             $property['CODE'].'_ELEMENT_NAME',
                             sprintf('(select group_concat(e.NAME SEPARATOR "\0") as VALUE from %s as m join b_iblock_element as e on m.VALUE = e.ID where m.IBLOCK_ELEMENT_ID = %s and m.IBLOCK_PROPERTY_ID = %d)',
